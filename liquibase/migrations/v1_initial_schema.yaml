@@ -1,0 +1,69 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: authornamehere
+      comment: Initial Schema Creation
+      preConditions:
+        # 'onFail': Specifies what Liquibase should do if the condition is not met.
+        - onFail: MARK_RAN
+          not:
+            # 'tableExists': Checks if a table with the given name and schema exists.
+            # By wrapping 'tableExists' in 'not', this precondition passes only if
+            # the table does *not* exist. If the table does exist, Liquibase executes
+            # the action set by 'onFail'.
+            - tableExists:
+                schemaName: template_service
+                tableName: system_info
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+        - sql:
+            dbms: postgresql
+            sql: CREATE SCHEMA IF NOT EXISTS template_service;
+
+        - sql:
+            dbms: postgresql
+            sql: SET search_path TO template_service, public;
+
+        - createTable:
+            tableName: system_info
+            schemaName: template_service
+            columns:
+              - column:
+                  name: id
+                  type: SERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: version
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        # Update system_info
+        - insert:
+            tableName: system_info
+            schemaName: template_service
+            columns:
+              - column:
+                  name: version
+                  value: "1.0.0"
+              - column:
+                  name: description
+                  value: "Initial schema"
+      rollback:
+        - dropTable:
+            tableName: system_info
+            schemaName: template_service
