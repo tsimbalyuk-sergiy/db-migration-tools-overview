@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: authornamehere
+      comment: Add Ownername Field to Configuration Table
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            schemaName: template_service
+            tableName: configuration
+      changes:
+        - addColumn:
+            tableName: configuration
+            schemaName: template_service
+            columns:
+              - column:
+                  name: ownername
+                  type: VARCHAR(200)
+        # Update system_info
+        - insert:
+            tableName: system_info
+            schemaName: template_service
+            columns:
+              - column:
+                  name: version
+                  value: "1.0.4"
+              - column:
+                  name: description
+                  value: "Added ownername field to configuration table"
+      rollback:
+        - dropColumn:
+            tableName: configuration

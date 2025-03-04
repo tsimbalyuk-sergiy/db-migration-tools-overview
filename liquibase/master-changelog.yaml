@@ -18,5 +18,9 @@ databaseChangeLog:
 
   # Include environment-specific migrations
   - include:
+      file: migrations/v5_add_ownername_field.yaml
+      relativeToChangelogFile: true
+
+  - include:
       file: migrations/dev/v20250228_add_test_data.yaml
       relativeToChangelogFile: true
