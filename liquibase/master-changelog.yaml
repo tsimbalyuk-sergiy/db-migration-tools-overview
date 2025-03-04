@@ -22,5 +22,9 @@ databaseChangeLog:
       relativeToChangelogFile: true
 
   - include:
+      file: migrations/v6_change_ownername_to_owner_info.yaml
+      relativeToChangelogFile: true
+
+  - include:
       file: migrations/dev/v20250228_add_test_data.yaml
       relativeToChangelogFile: true

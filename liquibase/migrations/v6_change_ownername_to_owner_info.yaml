@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 6
+      author: authornamehere
+      comment: Change ownername to owner_info with JSONB type
+      preConditions:
+        - onFail: MARK_RAN
+          columnExists:
+            schemaName: template_service
+            tableName: configuration
+            columnName: ownername
+      changes:
+        - addColumn:
+            tableName: configuration
+            schemaName: template_service
+            columns:
+              - column:
+                  name: owner_info
+                  type: JSONB
+                  defaultValue: '{}'
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: |
+              -- Convert data to JSONB with proper handling of NULL values
+              UPDATE template_service.configuration 
+              SET owner_info = CASE 
+                  WHEN ownername IS NOT NULL THEN jsonb_build_object('name', ownername)
+                  ELSE '{}'::jsonb 
+              END;
+        - dropColumn:
+            tableName: configuration
+            schemaName: template_service
+            columnName: ownername
+        # Update system_info
+        - insert:
+            tableName: system_info
+            schemaName: template_service
+            columns:
+              - column:
+                  name: version
+                  value: "1.0.5"
+              - column:
+                  name: description
+                  value: "Changed ownername to owner_info with JSONB type"
+      rollback:
+        - sql:
